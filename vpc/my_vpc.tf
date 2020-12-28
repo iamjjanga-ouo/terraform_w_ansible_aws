@@ -5,56 +5,7 @@ resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
   
   tags = {
-    Name = "main_vpc"
-  }
-}
-
-#########
-## Subnet
-#########
-# Public subnet x2
-resource "aws_subnet" "public_subnet_1" {
-  cidr_block = "10.0.0.0/24"
-  vpc_id = aws_vpc.main.id
-  
-  availability_zone = "ap-northeast-2a"
-  
-  tags = {
-    Name = "public_subnet"
-  }
-}
-
-resource "aws_subnet" "public_subnet_2" {
-  cidr_block = "10.0.1.0/24"
-  vpc_id = aws_vpc.main.id
-  
-  availability_zone = "ap-northeast-2c"
-  
-  tags = {
-    Name = "public_subnet"
-  }
-}
-
-# private subnet x2
-resource "aws_subnet" "private_subnet_1" {
-  cidr_block = "10.0.2.0/24"
-  vpc_id = aws_vpc.main.id
-  
-  availability_zone = "ap-northeast-2a"
-  
-  tags = {
-    Name = "private_subnet"
-  }
-}
-
-resource "aws_subnet" "private_subnet_2" {
-  cidr_block = "10.0.3.0/24"
-  vpc_id = aws_vpc.main.id
-  
-  availability_zone = "ap-northeast-2c"
-  
-  tags = {
-    Name = "private_subnet"
+    Name = "${var.vpc_name}_vpc"
   }
 }
 
@@ -65,16 +16,28 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "main_igw"
+    Name = "${var.vpc_name}_igw"
   }
 }
 
-################
-## Route Table
-################
+####################
+## Public Subnet x 2
+####################
+resource "aws_subnet" "public" {
+  count = length(var.availability_zones)
+  vpc_id = aws_vpc.main.id
 
-# Public Route Table
-resource "aws_route_table" "public_route_table" {
+  cidr_block = "10.${var.cidr_numeral}.${var.cidr_numeral_public[count.index]}.0/20"
+  availability_zone = element(var.availability_zones, count.index)
+
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "${var.vpc_name}_public_${count.index}"
+  }
+}
+
+resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
   route {
@@ -83,35 +46,44 @@ resource "aws_route_table" "public_route_table" {
   }
 
   tags = {
-    Name = "public_route_table"
+    Name = "${var.vpc_name}_public_rt"
   }
 }
 
-resource "aws_route_table_association" "public_route_table_association_1" {
-  route_table_id = aws_route_table.public_route_table.id
-  subnet_id = aws_subnet.public_subnet_1.id
+resource "aws_route_table_association" "public" {
+  count = length(var.availability_zones)
+  route_table_id = aws_route_table.public.id
+  subnet_id = element(aws_subnet.public.*.id, count.index)
 }
 
-resource "aws_route_table_association" "public_route_table_association_2" {
-  route_table_id = aws_route_table.public_route_table.id
-  subnet_id = aws_subnet.public_subnet_2.id
+####################
+## Private Subnet x 2
+####################
+resource "aws_subnet" "private" {
+  count = length(var.availability_zones)
+  vpc_id = aws_vpc.main.id
+
+  cidr_block = "10.${var.cidr_numeral}.${var.cidr_numeral_private[count.index]}.0/20"
+  availability_zone = element(var.availability_zones, count.index)
+  
+  tags = {
+    Name = "${var.vpc_name}_private_${count.index}"
+    Network = "private"
+  }
 }
 
-# Private Route Table
-resource "aws_route_table" "private_route_table" {
+# Private route table x 2
+resource "aws_route_table" "private" {
+  count = length(var.availability_zones)
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "private_route_table"
+    Name = "${var.vpc_name}_private_rt_${count.index}"
   }
 }
 
-resource "aws_route_table_association" "private_route_table_association_1" {
-  route_table_id = aws_route_table.private_route_table.id
-  subnet_id = aws_subnet.private_subnet_1.id
-}
-
-resource "aws_route_table_association" "private_route_table_association_2" {
-  route_table_id = aws_route_table.private_route_table.id
-  subnet_id = aws_subnet.private_subnet_2.id
+resource "aws_route_table_association" "private" {
+  count = length(var.availability_zones)
+  route_table_id = element(aws_route_table.private.*.id, count.index)
+  subnet_id = element(aws_subnet.private.*.id, count.index)
 }
