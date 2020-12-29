@@ -105,7 +105,6 @@ resource "aws_subnet" "db_private" {
 
 # DB Private route table
 resource "aws_route_table" "db_private" {
-  count = length(var.availability_zones)
   vpc_id = aws_vpc.main.id
 
   tags = {
