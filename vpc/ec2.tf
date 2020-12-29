@@ -18,6 +18,7 @@ resource "aws_instance" "web" {
   count = length(var.availability_zones)
   ami = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
+  security_groups = [aws_security_group.web_sg.id]
   subnet_id = aws_subnet.public[count.index].id
   key_name = var.key_pair
 
