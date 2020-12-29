@@ -31,3 +31,6 @@ variable "availability_zones" {
   description = "Availability zone with a and c (because of t2.micro is only available in ap-northeast-2a,2c"
 }
 
+variable "key_pair" {
+  default = "seoul"
+}
