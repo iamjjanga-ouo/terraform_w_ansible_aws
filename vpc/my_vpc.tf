@@ -87,3 +87,39 @@ resource "aws_route_table_association" "private" {
   route_table_id = element(aws_route_table.private.*.id, count.index)
   subnet_id = element(aws_subnet.private.*.id, count.index)
 }
+
+##################
+# Security Group
+##################
+resource "aws_security_group" "web_sg" {
+  name = "web_sg"
+  description = "Allow HTTP, HTTPS"
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    description = "HTTP for WEB"
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS for WEB"
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "web_sg"
+  }
+}
