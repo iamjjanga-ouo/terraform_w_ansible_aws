@@ -22,6 +22,13 @@ resource "aws_instance" "web" {
   subnet_id = aws_subnet.public[count.index].id
   key_name = var.key_pair
 
+  user_data = <<EOF
+          #!/bin/bash
+          sudo amazon-linux-extras install nginx1 -y
+          sudo systemctl enable --now nginx
+          echo "<h1>Deployed via Terraform</h1>" | sudo tee /usr/share/nginx/html/index.html
+  EOF
+
   tags = {
     Name = "WEB-${count.index}"
   }
