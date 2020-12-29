@@ -72,19 +72,18 @@ resource "aws_subnet" "private" {
   }
 }
 
-# Private route table x 2
+# Private route table
 resource "aws_route_table" "private" {
-  count = length(var.availability_zones)
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.vpc_name}_private_rt_${count.index}"
+    Name = "${var.vpc_name}_private_rt"
   }
 }
 
 resource "aws_route_table_association" "private" {
   count = length(var.availability_zones)
-  route_table_id = element(aws_route_table.private.*.id, count.index)
+  route_table_id = aws_route_table.private.id
   subnet_id = element(aws_subnet.private.*.id, count.index)
 }
 
@@ -104,19 +103,19 @@ resource "aws_subnet" "db_private" {
   }
 }
 
-# DB Private route table x 2
+# DB Private route table
 resource "aws_route_table" "db_private" {
   count = length(var.availability_zones)
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.vpc_name}_db_private_rt_${count.index}"
+    Name = "${var.vpc_name}_db_private_rt"
   }
 }
 
 resource "aws_route_table_association" "db_private" {
   count = length(var.availability_zones)
-  route_table_id = element(aws_route_table.db_private.*.id, count.index)
+  route_table_id = aws_route_table.db_private.id
   subnet_id = element(aws_subnet.db_private.*.id, count.index)
 }
 
