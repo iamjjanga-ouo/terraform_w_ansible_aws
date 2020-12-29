@@ -9,7 +9,7 @@ variable "cidr_numeral" {
 }
 
 variable "cidr_numeral_public" {
-  description = "VPC Public CIDR"
+  description = "Public CIDR"
   default = {
     "0" = "0"
     "1" = "16"
@@ -18,11 +18,20 @@ variable "cidr_numeral_public" {
 }
 
 variable "cidr_numeral_private" {
-  description = "VPC Private CIDR"
+  description = "Private CIDR"
   default = {
     "0" = "48"
     "1" = "64"
     "3" = "80"
+  }
+}
+
+variable "cidr_numberal_db_private" {
+  description = "DB Private CIDR"
+  default = {
+    "0" = "96"
+    "1" = "112"
+    "2" = "128"
   }
 }
 
