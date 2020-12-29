@@ -88,6 +88,38 @@ resource "aws_route_table_association" "private" {
   subnet_id = element(aws_subnet.private.*.id, count.index)
 }
 
+####################
+## DB Private Subnet x 2
+####################
+resource "aws_subnet" "db_private" {
+  count = length(var.availability_zones)
+  vpc_id = aws_vpc.main.id
+
+  cidr_block = "10.${var.cidr_numeral}.${var.cidr_numberal_db_private[count.index]}.0/20"
+  availability_zone = element(var.availability_zones, count.index)
+
+  tags = {
+    Name = "${var.vpc_name}_db_private_${count.index}"
+    Network = "private"
+  }
+}
+
+# DB Private route table x 2
+resource "aws_route_table" "db_private" {
+  count = length(var.availability_zones)
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "${var.vpc_name}_db_private_rt_${count.index}"
+  }
+}
+
+resource "aws_route_table_association" "db_private" {
+  count = length(var.availability_zones)
+  route_table_id = element(aws_route_table.db_private.*.id, count.index)
+  subnet_id = element(aws_subnet.db_private.*.id, count.index)
+}
+
 ##################
 # Security Group
 ##################
