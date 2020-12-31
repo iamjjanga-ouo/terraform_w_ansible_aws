@@ -43,3 +43,7 @@ variable "availability_zones" {
 variable "key_pair" {
   default = "seoul"
 }
+
+variable "ssl_arn" {
+  description = "SSL arn, input with your arn using -var option"
+}
