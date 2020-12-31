@@ -29,3 +29,8 @@ output "private_subnets" {
   description = "List of private subnets in VPC"
   value = aws_subnet.private.*.id
 }
+
+# ALB domain name
+output "alb_domain_name" {
+  value = aws_lb.ex_alb.dns_name
+}
