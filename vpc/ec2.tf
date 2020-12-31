@@ -3,7 +3,7 @@ data "aws_ami" "amazon_linux" {
 
   filter {
     name = "name"
-    values = ["amzn2-ami-hvm-2.0.????????.?-x86_64-gp2"]
+    values = ["amzn2-ami-hvm-2.0.????????.?-x86_64-gp2"] # Amazon Linux 2.0버전 간 bug fix 등의 업데이트 문제가 있어도 AMI를 가져올 수 있음.
   }
 
   filter {
