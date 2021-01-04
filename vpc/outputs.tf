@@ -34,3 +34,8 @@ output "private_subnets" {
 output "alb_domain_name" {
   value = aws_lb.ex_alb.dns_name
 }
+
+# EC2 instance id
+output "ec2_web_instance_id" {
+  value = aws_instance.web.*.id
+}
