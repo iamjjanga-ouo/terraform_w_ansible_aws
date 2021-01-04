@@ -5,8 +5,6 @@ resource "aws_lb" "ex_alb" {
   security_groups    = [aws_security_group.alb_sg.id]
   subnets            = aws_subnet.public.*.id
 
-  enable_deletion_protection = true
-
   tags = {
     Name = "${var.vpc_name}-alb"
     Environment = "development"
@@ -21,7 +19,7 @@ resource "aws_lb_target_group" "ex_alb_target" {
 }
 
 resource "aws_lb_target_group_attachment" "ex_alb_target_attach" {
-  count = 2
+  count = length(var.availability_zones) # 2
   target_group_arn = aws_lb_target_group.ex_alb_target.arn
   target_id        = element(aws_instance.web.*.id, count.index)
   port             = 80
@@ -33,25 +31,27 @@ resource "aws_lb_listener" "ex_alb_listener_http" {
   protocol          = "HTTP"
 
   default_action {
-    type = "redirect"
-
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
-
-resource "aws_lb_listener" "ex_alb_listener_https" {
-  load_balancer_arn = aws_lb.ex_alb.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = var.ssl_arn
-
-  default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.ex_alb_target.arn
+//    type = "redirect"
+//
+//    redirect {
+//      port        = "443"
+//      protocol    = "HTTPS"
+//      status_code = "HTTP_301"
+//    }
   }
 }
+
+//resource "aws_lb_listener" "ex_alb_listener_https" {
+//  load_balancer_arn = aws_lb.ex_alb.arn
+//  port              = "443"
+//  protocol          = "HTTPS"
+//  ssl_policy        = "ELBSecurityPolicy-2016-08"
+//  certificate_arn   = var.ssl_arn
+//
+//  default_action {
+//    type             = "forward"
+//    target_group_arn = aws_lb_target_group.ex_alb_target.arn
+//  }
+//}
