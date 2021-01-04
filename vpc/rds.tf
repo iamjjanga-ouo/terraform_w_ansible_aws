@@ -1,5 +1,4 @@
 resource "aws_db_instance" "rds" {
-resource "aws_db_instance" "rds" {
   count = length(var.availability_zones)
   allocated_storage    = 20
   storage_type         = "gp2"
