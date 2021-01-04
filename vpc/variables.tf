@@ -35,6 +35,10 @@ variable "cidr_numberal_db_private" {
   }
 }
 
+variable "ami_rhel" {
+  default = "ami-07270d166cdf39adc"
+}
+
 variable "availability_zones" {
   type = list(string)
   description = "Availability zone with a and c (because of t2.micro is only available in ap-northeast-2a,2c"
