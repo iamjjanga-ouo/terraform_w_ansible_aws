@@ -1,4 +1,5 @@
 resource "aws_db_instance" "rds" {
+resource "aws_db_instance" "rds" {
   count = length(var.availability_zones)
   allocated_storage    = 20
   storage_type         = "gp2"
@@ -10,6 +11,9 @@ resource "aws_db_instance" "rds" {
   password             = "dkagh1.."
   db_subnet_group_name = aws_db_subnet_group.rds_subnet_group.id
   availability_zone = element(var.availability_zones, count.index)
+
+  # ERROR : DB Instance FinalSnapshotIdentifier is required when a final snapshot is required -> https://github.com/hashicorp/terraform-provider-aws/issues/2588
+  skip_final_snapshot = true
 }
 
 resource "aws_db_subnet_group" "rds_subnet_group" {
