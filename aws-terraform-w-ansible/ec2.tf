@@ -7,7 +7,7 @@ resource "aws_instance" "web" {
   subnet_id = aws_subnet.public[count.index].id
   key_name = var.key_pair
 
-  user_data = file("install_nginx_php.sh")
+//  user_data = file("install_nginx_php.sh")
 
   tags = {
     Name = "WEB-${count.index}"
