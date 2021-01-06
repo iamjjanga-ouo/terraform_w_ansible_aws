@@ -1,4 +1,4 @@
-vpc_name = "main"
+
 
 cidr_numeral = "0"
 
