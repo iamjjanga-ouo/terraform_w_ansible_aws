@@ -1,0 +1,17 @@
+---
+- hosts: node
+  connection: local
+  serial: 1
+  gather_facts: no
+
+  tasks:
+  - name: get known_hosts fingerprint for ubuntu nodes
+    command: /usr/bin/ssh-keyscan -t rsa {{ ansible_host }}
+    register: keyscan
+
+  - name: add ansible_host to known_hosts
+    known_hosts:
+      name: "{{ ansible_host }}"
+      key: "{{ item }}"
+    with_items:
+      - "{{ keyscan.stdout_lines }}"
