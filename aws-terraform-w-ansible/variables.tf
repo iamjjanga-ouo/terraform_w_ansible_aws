@@ -97,7 +97,9 @@ variable "availability_zones" {
   description = "Availability zone with a and c (because of t2.micro is only available in ap-northeast-2a,2c"
 }
 
-
+variable "ssh_password" {
+  default = "dkagh1."
+}
 
 //variable "ssl_arn" {
 //  description = "SSL arn, input with your arn using -var option"
