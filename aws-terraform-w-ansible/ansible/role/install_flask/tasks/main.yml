@@ -1,12 +1,12 @@
 ---
-# tasks file for role_flask
+# tasks file for install_flask
 - name: flask environment
-    copy:
-      src: /home/ec2-user/flask_env.sh
-      dest: ~/flask_env.sh
-      owner: ec2-user
-      group: ec2-user
-      mode: '0775'
+  copy:
+    src: /home/ec2-user/role/install_flask/files/flask_env.sh
+    dest: ~/flask_env.sh
+    owner: ec2-user
+    group: ec2-user
+    mode: '0775'
 
   - name: Execute flask_env.sh
     command: bash flask_env.sh

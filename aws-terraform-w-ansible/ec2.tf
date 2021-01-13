@@ -41,6 +41,11 @@ resource "null_resource" "install_ansible_env" {
     destination = "~/ansible_env.sh"
   }
 
+  provisioner "file" {
+    source = "./ansible/"
+    destination = "~/"
+  }
+
   provisioner "remote-exec" {
     inline = [
       "bash ansible_env.sh",
