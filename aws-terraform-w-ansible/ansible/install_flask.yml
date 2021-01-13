@@ -1,0 +1,6 @@
+---
+- name: Install flask on the nodes
+  hosts: node
+
+  role:
+    - role_flask
