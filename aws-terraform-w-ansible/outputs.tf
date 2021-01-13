@@ -25,10 +25,10 @@ output "public_subnets" {
 }
 
 # private Subnets
-output "private_subnets" {
-  description = "List of private subnets in VPC"
-  value = aws_subnet.private.*.id
-}
+//output "private_subnets" {
+//  description = "List of private subnets in VPC"
+//  value = aws_subnet.private.*.id
+//}
 
 # ALB domain name
 output "alb_domain_name" {
@@ -38,4 +38,13 @@ output "alb_domain_name" {
 # EC2 instance id
 output "ec2_web_instance_id" {
   value = aws_instance.web.*.id
+}
+
+# EC2 instance Public ip
+output "ec2_web_public_ip" {
+  value = aws_instance.web.*.public_ip
+}
+
+output "ec2_ansible_public_ip" {
+  value = aws_instance.ansible.public_ip
 }
