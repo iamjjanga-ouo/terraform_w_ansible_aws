@@ -5,6 +5,7 @@
 sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y
 # Ansible pre-require python3
 sudo dnf install python3 -y
+sudo dnf install tree -y
 
 # alias
 echo "alias ans='ansible'" >> ~/.bashrc
@@ -17,5 +18,5 @@ sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config_"$now".backup
 
 # ssh timeout
 sudo sed -i -e 's/#ClientAliveInterval 0/ClientAliveInterval 10m/g' /etc/ssh/sshd_config
-sudo sed -i -e 's/#ClientAliveCountMax 3/ClientAliveCountMax 0/g' /etc/ssh/sshd_configz
+sudo sed -i -e 's/#ClientAliveCountMax 3/ClientAliveCountMax 0/g' /etc/ssh/sshd_config
 sudo systemctl restart sshd
