@@ -12,6 +12,14 @@ sudo systemctl restart sshd
 # set ec2-user password
 echo "dkagh1." | sudo passwd --stdin ec2-user
 
+# ssh timeout
+sudo sed -i -e 's/#ClientAliveInterval 0/ClientAliveInterval 10m/g' /etc/ssh/sshd_config
+sudo sed -i -e 's/#ClientAliveCountMax 3/ClientAliveCountMax 0/g' /etc/ssh/sshd_config
+sudo systemctl restart sshd
+
+
+
+
 #sudo dnf update -y
 #sudo dnf install nginx -y
 #sudo systemctl enable --now nginx
