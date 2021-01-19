@@ -17,5 +17,6 @@ sudo systemctl restart sshd
 sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y
 sudo dnf install python3 -y
 
-# install mysql
+# MySQL install & configuration
 sudo dnf install mysql -y
+export MYSQL_ADMIN_PASSWORD="dkagh1.."

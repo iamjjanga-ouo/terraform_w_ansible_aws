@@ -34,6 +34,8 @@ resource "null_resource" "setup_db" {
   provisioner "remote-exec" {
     inline = [
       "mysql -u ${aws_db_instance.my_db[count.index].username} -p${var.my_db_password} -h ${aws_db_instance.my_db[count.index].address} < init_mysql.sql",
+      "export MYSQL_ADMIN_PASSWORD=${var.my_db_password}",
+      "export MYSQL_ADDRESS=${aws_db_instance.my_db[count.index].address}",
     ]
   }
 }
@@ -96,10 +98,17 @@ resource "null_resource" "ansible-playbook" {
     timeout = "2m"
   }
 
+  provisioner "file" {
+    source = "./ansible/"
+    destination = "~/ansible/"
+  }
+
   provisioner "remote-exec" {
     inline = [
       "ANSIBLE_HOST_KEY_CHECKING=False",
       "ansible node -i inventory -m ping",
+      "ansible-playbook -i inventory ansible/install_flask.yml",
     ]
   }
 }
+
