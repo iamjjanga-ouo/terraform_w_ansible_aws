@@ -16,7 +16,7 @@ variable "vpc_name" {
   default = "main"
 }
 
-variable "aws_ami_name" {
+variable "aws_ami" {
   # default = "ami-d39a02b5" # ubuntu 16.04
   default = "ami-07270d166cdf39adc" # RHEL8
 }
@@ -50,9 +50,7 @@ variable "private_key" {
   default = "~/.ssh/id_rsa"
 }
 
-variable "key_pair" {
-  default = "seoul"
-}
+variable "key_pair" {}
 
 #######################################################
 ## Editable Ansible installation-specific variables ###
@@ -91,16 +89,14 @@ variable "cidr_numberal_db_private" {
   }
 }
 
-
 variable "availability_zones" {
   type = list(string)
   description = "Availability zone with a and c (because of t2.micro is only available in ap-northeast-2a,2c"
 }
 
-variable "ssh_password" {
-  default = "dkagh1."
-}
+variable "ssh_password" {}
 
+variable "my_db_password" {}
 //variable "ssl_arn" {
 //  description = "SSL arn, input with your arn using -var option"
 //}
