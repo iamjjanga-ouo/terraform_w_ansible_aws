@@ -31,6 +31,7 @@ resource "null_resource" "web_env" {
       "sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y",
       "sudo dnf install python3 -y",
       "sudo dnf install mysql -y",
+      "sudo dnf install expect -y" # expect package for Automation Some commands output to input
     ]
   }
 }
@@ -58,7 +59,8 @@ resource "null_resource" "setup_db" {
       "echo 'export MYSQL_ADMIN_PASSWORD=${var.my_db_password}' >> ~/.bashrc",
       "echo 'export MYSQL_ADDRESS=${aws_db_instance.my_db[count.index].address}' >> ~/.bashrc",
       "source ~/.bashrc",
-      "mysql -u ${aws_db_instance.my_db[count.index].username} -p${var.my_db_password} -h ${aws_db_instance.my_db[count.index].address} < init_mysql.sql",
+      "echo '${var.my_db_password}' | unbuffer -p mysql_config_editor set --login-path=flask --host=${aws_db_instance.my_db[count.index].address} --user=${var.my_db_user} --port=3306 --password",
+      "mysql --login-path=flask < init_mysql.sql",
     ]
   }
 }
