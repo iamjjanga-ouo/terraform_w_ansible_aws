@@ -13,10 +13,4 @@ sudo sed -i -e 's/#ClientAliveInterval 0/ClientAliveInterval 10m/g' /etc/ssh/ssh
 sudo sed -i -e 's/#ClientAliveCountMax 3/ClientAliveCountMax 0/g' /etc/ssh/sshd_config
 sudo systemctl restart sshd
 
-#sudo dnf update -y
-sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y
-sudo dnf install python3 -y
 
-# MySQL install & configuration
-sudo dnf install mysql -y
-export MYSQL_ADMIN_PASSWORD="dkagh1.."

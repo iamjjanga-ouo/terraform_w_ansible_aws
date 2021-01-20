@@ -6,16 +6,38 @@ resource "aws_instance" "web" {
   subnet_id = aws_subnet.public[count.index].id
   key_name = var.key_pair
 
-  user_data = file("web_env.sh")
+  user_data = file("./env/web_env.sh")
 
   tags = {
     Name = "WEB-${count.index}"
   }
 }
 
+resource "null_resource" "web_env" {
+  depends_on = [aws_instance.web]
+  count = length(var.availability_zones)
+
+  connection {
+    user = var.remote_user
+    type = "ssh"
+    host = aws_instance.web[count.index].public_ip
+    private_key = file("~/.ssh/${var.key_pair}.pem")
+    timeout = "10m"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      #"sudo dnf update -y",
+      "sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y",
+      "sudo dnf install python3 -y",
+      "sudo dnf install mysql -y",
+    ]
+  }
+}
+
 # initialize db
 resource "null_resource" "setup_db" {
-  depends_on = [aws_instance.web, aws_db_instance.my_db] #wait for the db to be ready
+  depends_on = [null_resource.web_env, aws_db_instance.my_db] #wait for the db to be ready
   count = length(var.availability_zones)
 
   connection {
@@ -33,9 +55,10 @@ resource "null_resource" "setup_db" {
 
   provisioner "remote-exec" {
     inline = [
+      "echo 'export MYSQL_ADMIN_PASSWORD=${var.my_db_password}' >> ~/.bashrc",
+      "echo 'export MYSQL_ADDRESS=${aws_db_instance.my_db[count.index].address}' >> ~/.bashrc",
+      "source ~/.bashrc",
       "mysql -u ${aws_db_instance.my_db[count.index].username} -p${var.my_db_password} -h ${aws_db_instance.my_db[count.index].address} < init_mysql.sql",
-      "export MYSQL_ADMIN_PASSWORD=${var.my_db_password}",
-      "export MYSQL_ADDRESS=${aws_db_instance.my_db[count.index].address}",
     ]
   }
 }
@@ -64,13 +87,13 @@ resource "null_resource" "install_ansible_env" {
   }
 
   provisioner "file" {
-    source = "./ansible_env.sh"
+    source = "./env/ansible_env.sh"
     destination = "~/ansible_env.sh"
   }
 
   provisioner "file" {
     source = "./ansible/"
-    destination = "~/"
+    destination = "~/ansible/"
   }
 
   provisioner "remote-exec" {
@@ -88,7 +111,7 @@ resource "null_resource" "install_ansible_env" {
 }
 
 resource "null_resource" "ansible-playbook" {
-  depends_on = [null_resource.install_ansible_env]
+  depends_on = [null_resource.install_ansible_env, null_resource.setup_db]
 
   connection {
     user = var.remote_user
@@ -98,16 +121,11 @@ resource "null_resource" "ansible-playbook" {
     timeout = "2m"
   }
 
-  provisioner "file" {
-    source = "./ansible/"
-    destination = "~/ansible/"
-  }
-
   provisioner "remote-exec" {
     inline = [
       "ANSIBLE_HOST_KEY_CHECKING=False",
       "ansible node -i inventory -m ping",
-      "ansible-playbook -i inventory ansible/install_flask.yml",
+      "ansible-playbook -i inventory ~/ansible/install_flask.yml",
     ]
   }
 }
