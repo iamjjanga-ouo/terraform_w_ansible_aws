@@ -1,5 +1,6 @@
 resource "aws_db_instance" "my_db" {
   count = length(var.availability_zones)
+  identifier = "my-db-${count.index}"
   allocated_storage    = 20
   storage_type         = "gp2"
   engine               = "mysql"

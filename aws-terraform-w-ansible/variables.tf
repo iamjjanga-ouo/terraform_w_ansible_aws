@@ -96,6 +96,10 @@ variable "availability_zones" {
 
 variable "ssh_password" {}
 
+variable "my_db_user" {
+  default = "admin"
+}
+
 variable "my_db_password" {}
 //variable "ssl_arn" {
 //  description = "SSL arn, input with your arn using -var option"
