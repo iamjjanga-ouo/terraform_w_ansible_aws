@@ -4,3 +4,10 @@
 
   roles:
     - { role: ./role/install_flask }
+
+- name: Execute flask server
+  hosts: node
+
+  tasks:
+    - name: Execute main.py in virtualenv
+      command: "~/myproject/venv/bin/python ~/myproject/main.py"
