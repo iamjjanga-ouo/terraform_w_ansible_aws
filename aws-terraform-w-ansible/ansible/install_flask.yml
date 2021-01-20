@@ -10,4 +10,4 @@
 
   tasks:
     - name: Execute main.py in virtualenv
-      command: "~/myproject/venv/bin/python ~/myproject/main.py"
+      command: "nohup ~/myproject/venv/bin/python ~/myproject/main.py &"
