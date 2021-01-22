@@ -28,6 +28,7 @@
   git:
     repo: https://github.com/iamjjanga-ouo/flask_connect_mysql.git
     dest: /home/ec2-user/myproject
+    update: no           # when change in local repo, don't update
 
 - name: Execute flask_env.sh
   command: bash flask_env.sh
@@ -36,6 +37,15 @@
   pip:
     requirements: ~/myproject/requirement.txt
     virtualenv: ~/myproject/venv
+
+- name: Copy file for Environment variables (.env)
+  command: "cp /home/ec2-user/env_tmp /home/ec2-user/myproject/.env"
+  ignore_errors: true
+
+- name: After copy, delete env_tmp file
+  file:
+    path: /home/ec2-user/env_tmp
+    state: absent
 
 - name: Create Systemd Unit File
   become: yes
@@ -59,7 +69,7 @@
     - "WorkingDirectory=/home/ec2-user/myproject"
     - "Environment='PATH=/home/ec2-user/myproject/venv/bin'"
     - "ExecStart=/home/ec2-user/myproject/venv/bin/gunicorn --workers 3 --bind unix:myproject.sock -m 007 wsgi"
-    - "[ Install ]"
+    - "[Install]"
     - "WantedBy=multi-user.target"
 
 - name: Start and enable myproject service
