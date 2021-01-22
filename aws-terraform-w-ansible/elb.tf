@@ -16,6 +16,7 @@ resource "aws_lb_target_group" "ex_alb_target" {
   port     = 80                                 # ALB-WEB doesn't need 443(HTTP) because of offloading
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
+  slow_start = 30
 }
 
 resource "aws_lb_target_group_attachment" "ex_alb_target_attach" {
@@ -33,6 +34,31 @@ resource "aws_lb_listener" "ex_alb_listener_http" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.ex_alb_target.arn
+  }
+}
+
+resource "aws_lb_listener" "ex_alb_listener_flask" {
+  load_balancer_arn = aws_lb.ex_alb.arn
+  port = "5000"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port = "80"
+      protocol = "HTTP"
+      status_code = "HTTP_301"
+    }
+  }
+
+}
+
+//resource "aws_lb_listener" "ex_alb_listener_http" {
+//  load_balancer_arn = aws_lb.ex_alb.arn
+//  port              = "80"
+//  protocol          = "HTTP"
+//
+//  default_action {
 //    type = "redirect"
 //
 //    redirect {
@@ -40,8 +66,8 @@ resource "aws_lb_listener" "ex_alb_listener_http" {
 //      protocol    = "HTTPS"
 //      status_code = "HTTP_301"
 //    }
-  }
-}
+//  }
+//}
 
 //resource "aws_lb_listener" "ex_alb_listener_https" {
 //  load_balancer_arn = aws_lb.ex_alb.arn
