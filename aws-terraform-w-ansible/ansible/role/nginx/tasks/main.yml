@@ -1,0 +1,30 @@
+---
+# tasks file for nginx
+- name: Install epel-release
+  become: yes
+  command: dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y
+
+- name: Install nginx web server
+  become: yes
+  action: "{{ ansible_pkg_mgr }} name=nginx state=present"
+  notify:
+    start nginx web server
+
+- name: Add nginx to ec2-user group
+  become: yes
+  user:
+    name: nginx
+    groups: ec2-user
+    append: yes
+
+- name: Change directory permissions
+  become: yes
+  file:
+    path: /home/ec2-user/
+    mode: '0710'
+
+- name: Write nginx.conf
+  become: yes
+  action: template src=templates/nginx.conf.j2 dest=/etc/nginx/nginx.conf
+  notify:
+    restart nginx web server

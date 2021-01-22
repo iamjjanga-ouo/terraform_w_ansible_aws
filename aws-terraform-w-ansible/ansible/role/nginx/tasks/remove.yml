@@ -1,0 +1,10 @@
+---
+# tasks file for nginx
+- name: Remove nginx web server
+  action: "{{ ansible_pkg_mgr }} name=nginx state=absent"
+
+- name: Clean nginx path
+  become: yes
+  file:
+    state: absent
+    path: "{{ nginx.nginx_path }}/"
