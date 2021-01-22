@@ -5,3 +5,8 @@
   roles:
     - { role: ./role/flask }
     - { role: ./role/nginx }
+
+  tasks:
+    - name: Restart myproject service
+      become: yes
+      command: systemctl restart myproject
