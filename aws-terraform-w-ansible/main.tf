@@ -92,31 +92,31 @@ resource "aws_route_table_association" "db_private" {
 ##################
 resource "aws_security_group" "web_sg" {
   name = "web_sg"
-  description = "Allow HTTP, HTTPS"
+  description = "WEB Security Group"
   vpc_id = aws_vpc.main.id
 
-    ingress {
-    description = "HTTP from ALB"
+  ingress {
+    description = "HTTP from from ALB Security group "
     from_port = 80
     to_port = 80
     protocol = "tcp"
-    security_groups = [aws_security_group.alb_sg.id, aws_security_group.ans_sg.id]
+    security_groups = [aws_security_group.alb_sg.id]
   }
 
   ingress {
-    description = "HTTPS from ALB"
+    description = "HTTPS from ALB Security group"
     from_port = 443
     to_port = 443
     protocol = "tcp"
-    security_groups = [aws_security_group.alb_sg.id, aws_security_group.ans_sg.id]
+    security_groups = [aws_security_group.alb_sg.id]
   }
 
   ingress {
-    description = "SSH for WEB"
+    description = "SSH from Ansible Security group"
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [aws_security_group.ans_sg.id]
   }
 
   egress {
@@ -134,11 +134,11 @@ resource "aws_security_group" "web_sg" {
 
 resource "aws_security_group" "alb_sg" {
   name = "alb_sg"
-  description = "Allow HTTP, HTTPS"
+  description = "ALB security Group"
   vpc_id = aws_vpc.main.id
 
   ingress {
-    description = "HTTP"
+    description = "HTTP from Anywhere"
     from_port = 80
     to_port = 80
     protocol = "tcp"
@@ -146,7 +146,7 @@ resource "aws_security_group" "alb_sg" {
   }
 
   ingress {
-    description = "HTTPS"
+    description = "HTTPS from Anywhere"
     from_port = 443
     to_port = 443
     protocol = "tcp"
@@ -168,15 +168,15 @@ resource "aws_security_group" "alb_sg" {
 
 resource "aws_security_group" "db_sg" {
   name = "db_sg"
-  description = "Allow from ec2"
+  description = "Database Security Group"
   vpc_id = aws_vpc.main.id
 
   ingress {
-    description = "MySQL"
+    description = "MySQL connect from WEB Security group"
     from_port = 3306
     to_port = 3306
     protocol = "tcp"
-    security_groups = [aws_security_group.web_sg.id, aws_security_group.ans_sg.id]
+    security_groups = [aws_security_group.web_sg.id]
   }
 
   egress {
@@ -194,7 +194,7 @@ resource "aws_security_group" "db_sg" {
 
 resource "aws_security_group" "ans_sg" {
   name = "ansible_sg"
-  description = "ansible security group"
+  description = "Ansible Security Group"
   vpc_id = aws_vpc.main.id
 
   ingress {
