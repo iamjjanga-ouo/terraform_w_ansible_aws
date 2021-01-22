@@ -111,7 +111,7 @@ resource "null_resource" "install_ansible_env" {
 }
 
 resource "null_resource" "ansible-playbook" {
-  depends_on = [null_resource.install_ansible_env, null_resource.setup_db]
+  depends_on = [null_resource.install_ansible_env, null_resource.setup_db, local_file.tf_ansible_vars]
 
   connection {
     user = var.remote_user
