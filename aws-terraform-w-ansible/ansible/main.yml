@@ -1,8 +1,7 @@
 ---
-- name: Install flask on the nodes
+- name: Install nginx, flask on the nodes
   hosts: node
 
   roles:
     - { role: ./role/flask }
-
-- name:
+    - { role: ./role/nginx }
