@@ -27,8 +27,6 @@ resource "null_resource" "web_env" {
 
   provisioner "remote-exec" {
     inline = [
-      #"sudo dnf update -y",
-      "sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y",
       "sudo dnf install python3 -y",
       "sudo dnf install mysql -y",
       "sudo dnf install expect -y" # expect package for Automation Some commands output to input
@@ -46,7 +44,7 @@ resource "null_resource" "setup_db" {
     type = "ssh"
     host = aws_instance.web[count.index].public_ip
     private_key = file("~/.ssh/${var.key_pair}.pem")
-    timeout = "10m"
+    timeout = "15m"
   }
 
   provisioner "file" {
@@ -56,9 +54,9 @@ resource "null_resource" "setup_db" {
 
   provisioner "remote-exec" {
     inline = [
-      "echo 'export MYSQL_ADMIN_PASSWORD=${var.my_db_password}' >> ~/.bashrc",
-      "echo 'export MYSQL_ADDRESS=${aws_db_instance.my_db[count.index].address}' >> ~/.bashrc",
-      "source ~/.bashrc",
+      "touch ~/env_tmp",
+      "echo 'DATABASE_PASS=${var.my_db_password}' >> env_tmp",
+      "echo 'DATABASE_URL=${aws_db_instance.my_db[count.index].address}' >> env_tmp",
       "echo '${var.my_db_password}' | unbuffer -p mysql_config_editor set --login-path=flask --host=${aws_db_instance.my_db[count.index].address} --user=${var.my_db_user} --port=3306 --password",
       "mysql --login-path=flask < init_mysql.sql",
     ]
@@ -120,14 +118,14 @@ resource "null_resource" "ansible-playbook" {
     type = "ssh"
     host = aws_instance.ansible.public_ip
     private_key = file("~/.ssh/${var.key_pair}.pem")
-    timeout = "2m"
+    timeout = "20m"
   }
 
   provisioner "remote-exec" {
     inline = [
       "ANSIBLE_HOST_KEY_CHECKING=False",
       "ansible node -i inventory -m ping",
-      "ansible-playbook -i inventory ~/ansible/install_flask.yml",
+      "ansible-playbook -i inventory ansible/main.yml",
     ]
   }
 }
