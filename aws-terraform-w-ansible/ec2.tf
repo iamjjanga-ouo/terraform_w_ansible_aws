@@ -13,30 +13,30 @@ resource "aws_instance" "web" {
   }
 }
 
-resource "null_resource" "web_env" {
-  depends_on = [aws_instance.web]
-  count = length(var.availability_zones)
-
-  connection {
-    user = var.remote_user
-    type = "ssh"
-    host = aws_instance.web[count.index].public_ip
-    private_key = file("~/.ssh/${var.key_pair}.pem")
-    timeout = "10m"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo dnf install python3 -y",
-      "sudo dnf install mysql -y",
-      "sudo dnf install expect -y", # expect package for Automation Some commands output to input
-    ]
-  }
-}
+//resource "null_resource" "web_env" {
+//  depends_on = [aws_instance.web]
+//  count = length(var.availability_zones)
+//
+//  connection {
+//    user = var.remote_user
+//    type = "ssh"
+//    host = aws_instance.web[count.index].public_ip
+//    private_key = file("~/.ssh/${var.key_pair}.pem")
+//    timeout = "10m"
+//  }
+//
+//  provisioner "remote-exec" {
+//    inline = [
+//      "sudo dnf install python3 -y",
+//      "sudo dnf install mysql -y",
+//      "sudo dnf install expect -y", # expect package for Automation Some commands output to input
+//    ]
+//  }
+//}
 
 # initialize db
 resource "null_resource" "setup_db" {
-  depends_on = [null_resource.web_env, aws_db_instance.my_db] #wait for the db to be ready
+  depends_on = [aws_db_instance.my_db] #wait for the db to be ready
   count = length(var.availability_zones)
 
   connection {
@@ -47,18 +47,11 @@ resource "null_resource" "setup_db" {
     timeout = "15m"
   }
 
-  provisioner "file" {
-    source = "./init_mysql.sql"
-    destination = "~/init_mysql.sql"
-  }
-
   provisioner "remote-exec" {
     inline = [
       "touch ~/env_tmp",
       "echo 'DATABASE_PASS=${var.my_db_password}' >> env_tmp",
       "echo 'DATABASE_URL=${aws_db_instance.my_db[count.index].address}' >> env_tmp",
-      "echo '${var.my_db_password}' | unbuffer -p mysql_config_editor set --login-path=flask --host=${aws_db_instance.my_db[count.index].address} --user=${var.my_db_user} --port=3306 --password",
-      "mysql --login-path=flask < init_mysql.sql",
     ]
   }
 }
@@ -76,7 +69,7 @@ resource "aws_instance" "ansible" {
 }
 
 resource "null_resource" "install_ansible_env" {
-  depends_on = [aws_instance.ansible, aws_instance.web]
+  depends_on = [aws_instance.ansible, null_resource.setup_db]
 
   connection {
     user = var.remote_user
@@ -92,8 +85,8 @@ resource "null_resource" "install_ansible_env" {
   }
 
   provisioner "file" {
-    source = "./ansible/"
-    destination = "~/ansible/"
+    source = "./ansible"
+    destination = "~/"
   }
 
   provisioner "remote-exec" {
@@ -101,8 +94,8 @@ resource "null_resource" "install_ansible_env" {
       "bash ansible_env.sh",
       "sudo dnf install ansible -y",
       "echo '[node]' > inventory",
-      "echo '${aws_instance.web[0].private_ip} ansible_user=ec2-user' >> inventory",
-      "echo '${aws_instance.web[1].private_ip} ansible_user=ec2-user' >> inventory",
+      "echo 'web1 ansible_host=${aws_instance.web[0].private_ip}' >> inventory",
+      "echo 'web2 ansible_host=${aws_instance.web[1].private_ip} ansible_user=ec2-user hostname=web2' >> inventory",
       "echo -e 'n\n' | ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ''", # Automated ssh-keygen without passphrase -> "https://unix.stackexchange.com/questions/69314/automated-ssh-keygen-without-passphrase-how"
       "sshpass -p ${var.ssh_password} ssh-copy-id ${var.remote_user}@${aws_instance.web[0].private_ip} -o StrictHostKeyChecking=no -o LogLevel=quiet",
       "sshpass -p ${var.ssh_password} ssh-copy-id ${var.remote_user}@${aws_instance.web[1].private_ip} -o StrictHostKeyChecking=no -o LogLevel=quiet",
@@ -111,7 +104,10 @@ resource "null_resource" "install_ansible_env" {
 }
 
 resource "null_resource" "ansible-playbook" {
-  depends_on = [null_resource.install_ansible_env, null_resource.setup_db, local_file.tf_ansible_vars]
+  depends_on = [null_resource.install_ansible_env,
+                null_resource.setup_db,
+                local_file.tf_ansible_nginx_vars,
+                local_file.tf_ansible_mysql_vars]
 
   connection {
     user = var.remote_user
@@ -125,7 +121,7 @@ resource "null_resource" "ansible-playbook" {
     inline = [
       "ANSIBLE_HOST_KEY_CHECKING=False",
       "ansible node -i inventory -m ping",
-      "ansible-playbook -i inventory ansible/main.yml",
+      #"ansible-playbook -i inventory ansible/main.yml",
     ]
   }
 }

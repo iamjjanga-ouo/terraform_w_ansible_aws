@@ -3,6 +3,7 @@
   hosts: node
 
   roles:
+    - { role: ./role/mysql }
     - { role: ./role/flask }
     - { role: ./role/nginx }
 

@@ -5,6 +5,10 @@
   selinux:
     state: disabled
 
+- name: Install python3
+  become: yes
+  action: "{{ ansible_pkg_mgr }} name=python3 state=present"
+
 - name: Create project directory
   file:
     path: /home/ec2-user/myproject
