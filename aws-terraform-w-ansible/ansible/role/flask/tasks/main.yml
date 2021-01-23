@@ -5,13 +5,10 @@
   selinux:
     state: disabled
 
-- name: flask environment
-  copy:
-    src: /home/ec2-user/ansible/role/flask/files/flask_env.sh
-    dest: ~/flask_env.sh
-    owner: ec2-user
-    group: ec2-user
-    mode: '0775'
+- name: Create project directory
+  file:
+    path: /home/ec2-user/myproject
+    state: directory
 
 - name: install git
   become: yes
@@ -19,16 +16,19 @@
     name: git
     state: present
 
-- name: Create project directory
-  file:
-    path: /home/ec2-user/myproject
-    state: directory
-
 - name: Clone a repo with separate git directory
   git:
     repo: https://github.com/iamjjanga-ouo/flask_connect_mysql.git
     dest: /home/ec2-user/myproject
     update: no           # when change in local repo, don't update
+
+- name: flask environment
+  copy:
+    src: /home/ec2-user/ansible/role/flask/files/flask_env.sh
+    dest: ~/flask_env.sh
+    owner: ec2-user
+    group: ec2-user
+    mode: '0775'
 
 - name: Execute flask_env.sh
   command: bash flask_env.sh
