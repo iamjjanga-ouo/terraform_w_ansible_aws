@@ -37,21 +37,22 @@ resource "aws_lb_listener" "ex_alb_listener_http" {
   }
 }
 
-resource "aws_lb_listener" "ex_alb_listener_flask" {
-  load_balancer_arn = aws_lb.ex_alb.arn
-  port = "5000"
-
-  default_action {
-    type = "redirect"
-
-    redirect {
-      port = "80"
-      protocol = "HTTP"
-      status_code = "HTTP_301"
-    }
-  }
-
-}
+# Test for flask access
+//resource "aws_lb_listener" "ex_alb_listener_flask" {
+//  load_balancer_arn = aws_lb.ex_alb.arn
+//  port = "5000"
+//
+//  default_action {
+//    type = "redirect"
+//
+//    redirect {
+//      port = "80"
+//      protocol = "HTTP"
+//      status_code = "HTTP_301"
+//    }
+//  }
+//
+//}
 
 //resource "aws_lb_listener" "ex_alb_listener_http" {
 //  load_balancer_arn = aws_lb.ex_alb.arn

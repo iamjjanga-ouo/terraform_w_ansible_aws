@@ -112,11 +112,10 @@ resource "aws_security_group" "web_sg" {
   }
 
   ingress {
-    description = "SSH from Ansible Security group"
     from_port = 22
-    to_port = 22
     protocol = "tcp"
-    security_groups = [aws_security_group.ans_sg.id]
+    to_port = 22
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
