@@ -29,7 +29,7 @@ resource "null_resource" "web_env" {
     inline = [
       "sudo dnf install python3 -y",
       "sudo dnf install mysql -y",
-      "sudo dnf install expect -y" # expect package for Automation Some commands output to input
+      "sudo dnf install expect -y", # expect package for Automation Some commands output to input
     ]
   }
 }
@@ -104,8 +104,8 @@ resource "null_resource" "install_ansible_env" {
       "echo '${aws_instance.web[0].private_ip} ansible_user=ec2-user' >> inventory",
       "echo '${aws_instance.web[1].private_ip} ansible_user=ec2-user' >> inventory",
       "echo -e 'n\n' | ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ''", # Automated ssh-keygen without passphrase -> "https://unix.stackexchange.com/questions/69314/automated-ssh-keygen-without-passphrase-how"
-      "sshpass -p dkagh1. ssh-copy-id ${var.remote_user}@${aws_instance.web[0].private_ip} -o StrictHostKeyChecking=no -o LogLevel=quiet",
-      "sshpass -p dkagh1. ssh-copy-id ${var.remote_user}@${aws_instance.web[1].private_ip} -o StrictHostKeyChecking=no -o LogLevel=quiet",
+      "sshpass -p ${var.ssh_password} ssh-copy-id ${var.remote_user}@${aws_instance.web[0].private_ip} -o StrictHostKeyChecking=no -o LogLevel=quiet",
+      "sshpass -p ${var.ssh_password} ssh-copy-id ${var.remote_user}@${aws_instance.web[1].private_ip} -o StrictHostKeyChecking=no -o LogLevel=quiet",
     ]
   }
 }
