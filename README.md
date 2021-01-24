@@ -18,6 +18,12 @@ ansible
     └── nginx
 ```
 5️⃣ As it is a Test Project, the file containing the variable name is uploaded to public. (Excluding Secret KEY, SSL value, etc.)
+
+## Prerequisite
+- Python3
+- AWS CLI v2
+- Terraform Version >= v0.14.3
+
 ## Quick Start
 
 1. Clone my project repo
@@ -26,7 +32,7 @@ $ git clone https://github.com/iamjjanga-ouo/terraform_w_aws.git
 ```
 2. Initialize Terraform Backend
 ```shell
-$ cd terraoform_w_aws/init
+$ cd terraform_w_aws/init
 $ terraform init
 $ terraform apply
 ...
@@ -42,6 +48,20 @@ $ terraform apply
 Enter a value: yes
 ...
 Wait provisioning....
+```
+
+clean this project
+```shell
+$ pwd
+../aws-terraform-w-ansible
+$ terraform destroy
+Enter a value: yes
+
+# you need to delete Backend S3, DynamoDB
+$ cd ../init
+$ python remove_s3.py # delete all s3 verisoned object
+$ terraform destory
+Enter a value: yes
 ```
 
 ## Korean Document ( Notion )
