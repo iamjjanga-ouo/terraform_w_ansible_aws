@@ -1,0 +1,28 @@
+---
+# tasks file for mysql
+- name: Install mysql
+  become: yes
+  action: "{{ ansible_pkg_mgr }} name=mysql state=present"
+
+# expect package for Automation Some commands output to input
+- name: Install expect
+  become: yes
+  action: "{{ ansible_pkg_mgr }} name=expect state=present"
+
+- name: set db host
+  set_fact:
+    db_host : "{{ (ansible_hostname == 'web1') | ternary(mysql.db_host_list['db_1'], mysql.db_host_list['db_2']) }}"
+
+- name: mysql_config_editor
+  shell: echo {{ mysql.admin_password }} | unbuffer -p mysql_config_editor set --login-path=flask --host={{ db_host }} --user={{ mysql.db_user }} --port=3306 --password
+
+- name: copy init_mysql.sql to hosts
+  copy:
+    src: /home/ec2-user/ansible/role/mysql/files/init_mysql.sql
+    dest: ~/init_mysql.sql
+    owner: ec2-user
+    group: ec2-user
+    mode: '0644'
+
+- name: init mysql database
+  shell: mysql --login-path=flask < init_mysql.sql # how to skip mysql already exists error?
