@@ -100,7 +100,7 @@ resource "null_resource" "ansible-playbook" {
     inline = [
       "ANSIBLE_HOST_KEY_CHECKING=False",
       "ansible node -i inventory -m ping",
-      #"ansible-playbook -i inventory ansible/main.yml",
+      "ansible-playbook -i inventory ansible/main.yml",
     ]
   }
 }
