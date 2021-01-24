@@ -13,27 +13,6 @@ resource "aws_instance" "web" {
   }
 }
 
-//resource "null_resource" "web_env" {
-//  depends_on = [aws_instance.web]
-//  count = length(var.availability_zones)
-//
-//  connection {
-//    user = var.remote_user
-//    type = "ssh"
-//    host = aws_instance.web[count.index].public_ip
-//    private_key = file("~/.ssh/${var.key_pair}.pem")
-//    timeout = "10m"
-//  }
-//
-//  provisioner "remote-exec" {
-//    inline = [
-//      "sudo dnf install python3 -y",
-//      "sudo dnf install mysql -y",
-//      "sudo dnf install expect -y", # expect package for Automation Some commands output to input
-//    ]
-//  }
-//}
-
 # initialize db
 resource "null_resource" "setup_db" {
   depends_on = [aws_db_instance.my_db] #wait for the db to be ready

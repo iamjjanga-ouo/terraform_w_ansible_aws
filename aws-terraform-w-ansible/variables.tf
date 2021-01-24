@@ -101,6 +101,7 @@ variable "my_db_user" {
 }
 
 variable "my_db_password" {}
+
 //variable "ssl_arn" {
 //  description = "SSL arn, input with your arn using -var option"
 //}
