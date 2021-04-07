@@ -4,6 +4,15 @@
 # .tfstate file
 */*/*.tfstate
 */*/*.tfstate.*
+*/*.tfstate
+*/*.tfstate.*
 
 # lock file
 */.terraform.lock.hcl
+
+# database password & hostname written when executing web(ec2-instance connect to rds)
+aws-terraform-w-ansible/ansible/role/mysql/vars/*
+
+# elb domain name & nginx_path value written when executing ansible
+aws-terraform-w-ansible/ansible/role/nginx/vars/
+
